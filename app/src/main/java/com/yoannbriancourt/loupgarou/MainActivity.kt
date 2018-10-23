@@ -6,6 +6,8 @@ import android.support.v7.app.AppCompatActivity
 import android.view.Menu
 import android.view.MenuItem
 import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.android.synthetic.main.content_main.*
+import java.lang.Integer.parseInt
 
 class MainActivity : AppCompatActivity() {
 
@@ -14,11 +16,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-
-
         fab.setOnClickListener { view ->
-            val intent = Intent(this, NightActivity::class.java)
-            startActivity(intent)
+            giveRoles()
         }
     }
 
@@ -36,5 +35,15 @@ class MainActivity : AppCompatActivity() {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
         }
+    }
+
+    fun giveRoles(){
+        GameEngine.createRoles(parseInt(nbrPlayer.text.toString()) - 1)
+        intentToNight()
+    }
+
+    fun intentToNight(){
+        val intent = Intent(this, NightActivity::class.java)
+        startActivity(intent)
     }
 }

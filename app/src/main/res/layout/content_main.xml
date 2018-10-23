@@ -9,7 +9,7 @@
     tools:showIn="@layout/activity_main">
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/nbrPlayer"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="24dp"

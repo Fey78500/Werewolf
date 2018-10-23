@@ -3,10 +3,11 @@ package com.yoannbriancourt.loupgarou
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import com.yoannbriancourt.loupgarou.model.Villager
 import kotlinx.android.synthetic.main.activity_night.*
 
 class NightActivity : AppCompatActivity() {
-
+    private var players : ArrayList<Villager> = GameEngine.getPlayers()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_night)

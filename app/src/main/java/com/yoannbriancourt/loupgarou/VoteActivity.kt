@@ -24,4 +24,8 @@ class VoteActivity : AppCompatActivity() {
         }
     }
 
+    fun killPlayer(){
+        //todo
+    }
+
 }
