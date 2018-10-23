@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">Loup Garou</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_night">NightActivity</string>
+    <string name="title_activity_chronos">ChronosActivity</string>
+    <string name="title_activity_vote">VoteActivity</string>
+    <string name="title_activity_dead">DeadActivity</string>
+</resources>
