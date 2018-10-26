@@ -8,52 +8,71 @@ object GameEngine {
     private var alivePlayer : Int = 0
     private var turn : Int = 0
 
-    fun IntRange.random() =
+    private fun IntRange.random() =
             Random().nextInt((endInclusive + 1) - start) +  start
 
-    fun GetPlayers(): ArrayList<Villager>{
+    fun getPlayers(): ArrayList<Villager>{
         return this.players
     }
-    fun GetPlayer(index : Int) : Villager{
+    fun getPlayer(index : Int) : Villager{
         return players[index]
     }
 
-    fun NextPlayer(){
+    fun nextPlayer(){
         this.turn++
     }
 
-    fun ResetTurn(){
+    fun resetTurn(){
         this.turn = 0
     }
 
-    fun GetTurn() : Int{
+    fun getTurn() : Int{
         return this.turn
     }
 
-    fun CreateRoles(nbr : Int){
+    fun createRoles(nbr : Int){
         this.alivePlayer = nbr
         var player : Villager
         var isThereBad = false
         while(!isThereBad){
             players = ArrayList()
             for(i in nbr downTo 0){
-                var random = (0..4).random()
-                when(random){
-                    0 ->  player = Werewolf("player $i",1,0,true)
-                    1 ->  player = Hunter("player $i",1,0,false)
-                    2 ->  player = Seer("player $i",1,0,false)
-                    3 ->  player = Sorcerer("player $i",1,0,false)
-                    4 ->  player = Villager("player $i",1,0,false)
+                val random = (0..4).random()
+                player = when(random){
+                    0 -> Werewolf("player $i",1,0,true)
+                    1 -> Hunter("player $i",1,0,false)
+                    2 -> Seer("player $i",1,0,false)
+                    3 -> Sorcerer("player $i",1,0,false)
+                    4 -> Villager("player $i",1,0,false)
                     else -> {
-                        player = Villager("player $i",1,0,false)
+                        Villager("player $i",1,0,false)
                     }
                 }
-                if(player.isBad == true){
+                if(player.isBad){
                     isThereBad = true
                 }
                 this.players.add(player)
             }
         }
 
+    }
+
+    fun getActions(player : Villager) : ArrayList<String>{
+        val playerClass = player.javaClass.simpleName
+        val actions = ArrayList<String>()
+        if(playerClass == "Werewolf" || playerClass == "Sorcerer"){
+            actions.add("kill")
+        }
+        if(playerClass == "Sorcerer"){
+            actions.add("save")
+        }
+        if(playerClass == "Hunter"){
+            actions.add("target")
+        }
+        if(playerClass == "Seer"){
+            actions.add("see")
+        }
+
+        return actions
     }
 }

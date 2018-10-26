@@ -11,9 +11,9 @@ import kotlinx.android.synthetic.main.activity_night.*
 import kotlinx.android.synthetic.main.content_night.*
 
 class NightActivity : AppCompatActivity() {
-    private var turn : Int = GameEngine.GetTurn()
-    private val player : Villager = GameEngine.GetPlayer(turn)
-    private val players : ArrayList<Villager> = GameEngine.GetPlayers()
+    private var turn : Int = GameEngine.getTurn()
+    private val player : Villager = GameEngine.getPlayer(turn)
+    private val players : ArrayList<Villager> = GameEngine.getPlayers()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_night)
@@ -25,12 +25,8 @@ class NightActivity : AppCompatActivity() {
 
         if(player.javaClass.simpleName != "Villager"){
             // Affiche les actions possible en fonction du role
-            /*for(action in player){
-                val button = Button(this)
-                button.text = action.name
-                button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
-                layoutAction.addView(button)
-            }*/
+            getActions()
+
             // Affiche les joueurs vivants
             for(otherPlayer in players) {
                 val button = Button(this)
@@ -46,15 +42,27 @@ class NightActivity : AppCompatActivity() {
         })
         fab.setOnClickListener { view ->
             // Si il n'y plus de joueur, la journé arrive
-            if(player == GameEngine.GetPlayers().last()){
-                GameEngine.ResetTurn()
+            if(player == GameEngine.getPlayers().last()){
+                GameEngine.resetTurn()
                 val intent = Intent(this, DeadActivity::class.java)
                 startActivity(intent)
             }else{
-                GameEngine.NextPlayer()
+                GameEngine.nextPlayer()
                 val intent = Intent(this, NightActivity::class.java)
                 startActivity(intent)
             }
+        }
+    }
+
+    fun getActions(){
+        for(action in GameEngine.getActions(player)){
+            val button = Button(this)
+            button.text = action
+            button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            layoutAction.addView(button)
+            button.setOnClickListener({ view ->
+                hidden.visibility = View.VISIBLE
+            })
         }
     }
 

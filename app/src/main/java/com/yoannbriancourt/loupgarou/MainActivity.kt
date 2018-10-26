@@ -38,7 +38,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun giveRoles(){
-        GameEngine.CreateRoles(parseInt(nbrPlayer.text.toString()) - 1)
+        GameEngine.createRoles(parseInt(nbrPlayer.text.toString()) - 1)
         intentToNight()
     }
 
