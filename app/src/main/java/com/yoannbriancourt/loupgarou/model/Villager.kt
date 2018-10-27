@@ -5,6 +5,8 @@ open class Villager {
     var health : Int
     var nbrVote: Int = 0
     var isBad : Boolean = false
+    var actions : HashMap<Villager,String> = HashMap()
+
 
     constructor(name:String,health:Int,nbrVote:Int,isBad:Boolean){
         this.name = name
@@ -13,7 +15,8 @@ open class Villager {
         this.isBad = isBad
     }
 
-    fun votePlayer(player : Villager){
-        player.nbrVote ++
+    fun addAction(player : Villager,action : String){
+        this.actions[player] = action
     }
+
 }

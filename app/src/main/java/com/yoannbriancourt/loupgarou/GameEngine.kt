@@ -2,6 +2,7 @@ package com.yoannbriancourt.loupgarou
 
 import com.yoannbriancourt.loupgarou.model.*
 import java.util.*
+import kotlin.collections.ArrayList
 
 object GameEngine {
     private var players : ArrayList<Villager> = ArrayList()
@@ -14,6 +15,7 @@ object GameEngine {
     fun getPlayers(): ArrayList<Villager>{
         return this.players
     }
+
     fun getPlayer(index : Int) : Villager{
         return players[index]
     }
@@ -60,19 +62,48 @@ object GameEngine {
     fun getActions(player : Villager) : ArrayList<String>{
         val playerClass = player.javaClass.simpleName
         val actions = ArrayList<String>()
-        if(playerClass == "Werewolf" || playerClass == "Sorcerer"){
-            actions.add("kill")
+        when(playerClass){
+            "Werewolf" -> actions.add("kill")
+            "Sorcerer" -> {
+                actions.add("save")
+                actions.add("kill")
+            }
+            "Hunter" -> actions.add("target")
+            "Seer" -> actions.add("see")
+            else -> {
+                actions.add("nothing")
+            }
         }
-        if(playerClass == "Sorcerer"){
-            actions.add("save")
-        }
-        if(playerClass == "Hunter"){
-            actions.add("target")
-        }
-        if(playerClass == "Seer"){
-            actions.add("see")
-        }
-
         return actions
+    }
+
+    fun setAction(action:String, targetPlayer : Villager,currentPlayer : Villager){
+        targetPlayer.addAction(currentPlayer,action)
+    }
+
+    fun getDeadPlayer() : ArrayList<Villager>{
+        val deadPlayers : ArrayList<Villager> = ArrayList()
+        for(targetPlayer in players){
+            for(actionPlayer in players){
+                if(targetPlayer.actions[actionPlayer] == "kill"){
+                    targetPlayer.health --
+                }
+                if(targetPlayer.actions[actionPlayer] == "save"){
+                    if(targetPlayer.health == 0) {
+                        targetPlayer.health++
+                    }
+                    break
+                }
+            }
+            if(targetPlayer.health == 0){
+                deadPlayers.add(targetPlayer)
+            }
+        }
+        players.removeAll(deadPlayers)
+        return deadPlayers
+    }
+
+    fun checkWinning(){
+
     }
 }
