@@ -12,8 +12,11 @@ object GameEngine {
     private fun IntRange.random() =
             Random().nextInt((endInclusive + 1) - start) +  start
 
-    fun getPlayers(): ArrayList<Villager>{
-        return this.players
+    fun getPlayers(player : Villager): List<Villager>{
+        //Get all player except the courrant one
+        return players.filterNot {
+            it == player
+        }
     }
 
     fun getPlayer(index : Int) : Villager{
@@ -97,6 +100,17 @@ object GameEngine {
             }
             if(targetPlayer.health == 0){
                 deadPlayers.add(targetPlayer)
+            }
+        }
+        val searchHunter = deadPlayers.find { villager ->
+            villager.javaClass.simpleName == "Hunter"
+        }
+        if(searchHunter != null){
+            for(targetPlayer in players) {
+                if(targetPlayer.actions[searchHunter] == "target"){
+                    targetPlayer.health --
+                    deadPlayers.add(targetPlayer)
+                }
             }
         }
         players.removeAll(deadPlayers)

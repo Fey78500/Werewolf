@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.content_night.*
 class NightActivity : AppCompatActivity() {
     private var turn = GameEngine.getTurn()
     private val player = GameEngine.getPlayer(turn)
-    private val players = GameEngine.getPlayers()
+    private lateinit var players : List<Villager>
     private lateinit var playerAction : String
     private lateinit var choosenPlayer : Villager
 
@@ -23,16 +23,17 @@ class NightActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_night)
         setSupportActionBar(toolbar)
-
+        this.players = GameEngine.getPlayers(player)
         //set les textes en fonction du player
-        username.text = player.name
-        role.text = player.javaClass.simpleName
-
+        setText()
         if(player.javaClass.simpleName != "Villager"){
             // Affiche les actions possible en fonction du role
             getActions()
             // Affiche les joueurs vivants
             getPlayers()
+        }else{
+            chooseAction.visibility = View.INVISIBLE
+            choosePlayer.visibility = View.INVISIBLE
         }
         // Affiche le role lors du click
         showRole.setOnClickListener({
@@ -43,6 +44,12 @@ class NightActivity : AppCompatActivity() {
             // Si il n'y plus de joueur, la journé arrive
             onNextTap()
         }
+    }
+
+    private fun setText(){
+        username.text = player.name
+        role.text = player.javaClass.simpleName
+        description.text = player.description()
     }
 
     private fun getActions(){
@@ -78,8 +85,14 @@ class NightActivity : AppCompatActivity() {
                 for (i in 0 until layoutPlayers.childCount) {
                     val child = layoutPlayers.getChildAt(i)
                     child.isActivated = false
+                    if(player.javaClass.simpleName == "Seer"){
+                        child.isClickable = false
+                    }
                 }
                 it.isActivated = true
+                if(player.javaClass.simpleName == "Seer") {
+                    button.text = otherPlayer.name + " : " + otherPlayer.javaClass.simpleName
+                }
                 choosenPlayer = otherPlayer
             })
         }
@@ -101,7 +114,7 @@ class NightActivity : AppCompatActivity() {
     }
 
     private fun changeView(){
-        if(player == GameEngine.getPlayers().last()){
+        if(player == GameEngine.getPlayers(player).last()){
             GameEngine.resetTurn()
             val intent = Intent(this, DeadActivity::class.java)
             startActivity(intent)

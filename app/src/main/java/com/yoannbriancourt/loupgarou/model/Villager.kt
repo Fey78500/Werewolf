@@ -18,5 +18,7 @@ open class Villager {
     fun addAction(player : Villager,action : String){
         this.actions[player] = action
     }
-
+    open fun description() : String{
+        return "The villager can't do anything. Sleep well"
+    }
 }

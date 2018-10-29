@@ -1,9 +1,11 @@
 package com.yoannbriancourt.loupgarou
 
+import MinMaxFilter
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
+import android.text.InputFilter
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -11,12 +13,15 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Integer.parseInt
 
+
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
+
+        nbrPlayer.filters = arrayOf<InputFilter>(MinMaxFilter("1", "30"))
 
         fab.setOnClickListener { view ->
             giveRoles()
