@@ -15,7 +15,7 @@ import kotlinx.android.synthetic.main.content_night.*
 class NightActivity : AppCompatActivity() {
     private var turn = GameEngine.getTurn()
     private val player = GameEngine.getPlayer(turn)
-    private lateinit var players : List<Villager>
+    private lateinit var players : ArrayList<Villager>
     private lateinit var playerAction : String
     private lateinit var choosenPlayer : Villager
 
@@ -23,7 +23,7 @@ class NightActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_night)
         setSupportActionBar(toolbar)
-        this.players = GameEngine.getPlayers(player)
+        this.players = GameEngine.getOtherPlayers(player)
         //set les textes en fonction du player
         setText()
         if(player.javaClass.simpleName != "Villager"){
@@ -36,9 +36,9 @@ class NightActivity : AppCompatActivity() {
             choosePlayer.visibility = View.INVISIBLE
         }
         // Affiche le role lors du click
-        showRole.setOnClickListener({
+        showRole.setOnClickListener{
             hidden.visibility = View.VISIBLE
-        })
+        }
         //Continue vers le prochain joueur, ou le matin
         fab.setOnClickListener {
             // Si il n'y plus de joueur, la journé arrive
@@ -63,14 +63,14 @@ class NightActivity : AppCompatActivity() {
                 button.isActivated = true
                 playerAction = action
             }
-            button.setOnClickListener({
+            button.setOnClickListener {
                 for (i in 0 until layoutAction.childCount) {
                     val child = layoutAction.getChildAt(i)
                     child.isActivated = false
                 }
                 it.isActivated = true
                 playerAction = action
-            })
+            }
         }
     }
 
@@ -81,7 +81,7 @@ class NightActivity : AppCompatActivity() {
             button.background = getDrawable(R.drawable.button_custom)
             button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             layoutPlayers.addView(button)
-            button.setOnClickListener({
+            button.setOnClickListener {
                 for (i in 0 until layoutPlayers.childCount) {
                     val child = layoutPlayers.getChildAt(i)
                     child.isActivated = false
@@ -94,7 +94,7 @@ class NightActivity : AppCompatActivity() {
                     button.text = otherPlayer.name + " : " + otherPlayer.javaClass.simpleName
                 }
                 choosenPlayer = otherPlayer
-            })
+            }
         }
     }
 
@@ -114,7 +114,7 @@ class NightActivity : AppCompatActivity() {
     }
 
     private fun changeView(){
-        if(player == GameEngine.getPlayers(player).last()){
+        if(player == GameEngine.getPlayers().last()){
             GameEngine.resetTurn()
             val intent = Intent(this, DeadActivity::class.java)
             startActivity(intent)

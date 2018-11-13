@@ -18,6 +18,11 @@ open class Villager {
     fun addAction(player : Villager,action : String){
         this.actions[player] = action
     }
+
+    fun addVote(nbr : Int){
+        this.nbrVote += nbr
+    }
+
     open fun description() : String{
         return "The villager can't do anything. Sleep well"
     }
