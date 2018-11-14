@@ -50,9 +50,8 @@ class DeadActivity : AppCompatActivity() {
         if(end != "continue"){
             textDied.text = "End of the game, Winner : $end"
             fab.visibility = View.INVISIBLE
-            GameEngine.restart()
             Handler().postDelayed({
-                val intent = Intent(this, MainActivity::class.java)
+                val intent = Intent(this, EndActivity::class.java)
                 startActivity(intent)
             }, 5000)
 

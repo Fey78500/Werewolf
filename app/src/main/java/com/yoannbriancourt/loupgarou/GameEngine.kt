@@ -6,10 +6,11 @@ import kotlin.collections.ArrayList
 
 object GameEngine {
     private var players : ArrayList<Villager> = ArrayList()
+    private var allPlayers : ArrayList<Villager> = ArrayList()
     private var turn : Int = 0
     private var day : Boolean = true
     private lateinit var  maxVote : Villager
-
+    private fun selector(p: Villager): Int = p.nbrVote
 
     fun setDay(day:Boolean){
         this.day = day
@@ -27,6 +28,10 @@ object GameEngine {
         return ArrayList(this.players.filterNot {
             it == player
         })
+    }
+
+    fun getAllPlayers() : ArrayList<Villager>{
+        return this.allPlayers
     }
 
     fun getPlayers() : ArrayList<Villager>{
@@ -49,28 +54,32 @@ object GameEngine {
         return this.turn
     }
 
-    fun createRoles(nbr : Int){
+    fun createRoles(nbr : Int, playersName : ArrayList<String>){
         var isThereBad = false
         while(!isThereBad){
             this.players = ArrayList()
+            this.allPlayers = ArrayList()
             for(i in nbr downTo 0){
                 val random = (0..4).random()
+                val name = "$i: ${playersName[i]}"
                 val player = when(random){
-                    0 -> Werewolf("player $i",1,0,true)
-                    1 -> Hunter("player $i",1,0,false)
-                    2 -> Seer("player $i",1,0,false)
-                    3 -> Sorcerer("player $i",1,0,false)
-                    4 -> Villager("player $i",1,0,false)
+                    0 -> Werewolf(name,1,0,true)
+                    1 -> Hunter(name,1,0,false)
+                    2 -> Seer(name,1,0,false)
+                    3 -> Sorcerer(name,1,0,false)
+                    4 -> Villager(name,1,0,false)
                     else -> {
-                        Villager("player $i",1,0,false)
+                        Villager(name,1,0,false)
                     }
                 }
                 if(player.isBad){
                     isThereBad = true
                 }
                 this.players.add(player)
+                this.allPlayers.add(player)
             }
         }
+
 
     }
 
@@ -106,6 +115,7 @@ object GameEngine {
 
     fun getDeadPlayer() : ArrayList<Villager>{
         val deadPlayers : ArrayList<Villager> = ArrayList()
+        var draw = false
         if(this.day){
             for(targetPlayer in players){
                 for(actionPlayer in players){
@@ -137,19 +147,21 @@ object GameEngine {
                 }
             }
         }else{
+            this.players.sortBy {selector(it)}
             for(votePlayer in this.players){
                 when {
                     votePlayer == this.players.first() -> this.maxVote = votePlayer
-                    this.maxVote.nbrVote == votePlayer.nbrVote -> {
-
-                    }
+                    this.maxVote.nbrVote == votePlayer.nbrVote -> draw = true
                     this.maxVote.nbrVote < votePlayer.nbrVote -> this.maxVote = votePlayer
                 }
             }
-            deadPlayers.add(maxVote)
+            if(!draw) {
+                deadPlayers.add(maxVote)
+            }
         }
-        this.players.removeAll(deadPlayers)
-
+        if(!draw){
+            this.players.removeAll(deadPlayers)
+        }
         return deadPlayers
     }
 
@@ -175,6 +187,7 @@ object GameEngine {
 
     fun restart(){
         this.players = ArrayList()
+        this.allPlayers = ArrayList()
         resetTurn()
         this.day = true
     }

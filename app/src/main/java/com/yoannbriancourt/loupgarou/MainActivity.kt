@@ -1,31 +1,31 @@
 package com.yoannbriancourt.loupgarou
 
-import MinMaxFilter
 import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.support.v7.app.AppCompatActivity
-import android.text.InputFilter
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
+import android.widget.LinearLayout
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import java.lang.Integer.parseInt
-
 
 class MainActivity : AppCompatActivity() {
+
+    private var playersName : ArrayList<String> = ArrayList()
+    private var nbrPlayers = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
-        nbrPlayer.filters = arrayOf<InputFilter>(MinMaxFilter("1", "30"))
+        //nbrPlayer.filters = arrayOf<InputFilter>(MinMaxFilter("3", "30"))
 
-        fab.setOnClickListener { view ->
-            giveRoles()
-        }
+        setListener()
+
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -44,12 +44,58 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun giveRoles(){
-        GameEngine.createRoles(parseInt(nbrPlayer.text.toString()) - 1)
-        intentToNight()
+    private fun setListener(){
+        add.setOnClickListener {
+            addInput()
+        }
+        remove.setOnClickListener {
+            removeInput()
+        }
+        fab.setOnClickListener {
+            giveRoles()
+        }
     }
 
-    fun intentToNight(){
+    private fun addInput(){
+        val text = EditText(this)
+        text.hint = "Player name"
+        text.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+        layoutPlayersName.addView(text)
+    }
+
+    private fun removeInput(){
+        layoutPlayersName.removeAllViews()
+    }
+
+    private fun getPlayerName(){
+        for(index in layoutPlayersName.childCount - 1 downTo 0){
+            val child = layoutPlayersName.getChildAt(index) as EditText
+            if(child.text.toString() == "") {
+                Toast.makeText(this, "Please the player need a name", Toast.LENGTH_SHORT).show()
+                return
+            }
+            this.playersName.add(child.text.toString())
+            this.nbrPlayers ++
+        }
+    }
+
+    private fun giveRoles(){
+        getPlayerName()
+        if(checkPlayers()){
+            GameEngine.createRoles(this.nbrPlayers - 1,this.playersName)
+            intentToNight()
+        }
+    }
+
+    private fun checkPlayers() : Boolean{
+        if(this.nbrPlayers > 2) {
+            return true
+        }
+        Toast.makeText(this, "You need to have between 3 and 30 players", Toast.LENGTH_SHORT).show()
+        return false
+    }
+
+    private fun intentToNight(){
         val intent = Intent(this, NightActivity::class.java)
         startActivity(intent)
     }
@@ -63,6 +109,6 @@ class MainActivity : AppCompatActivity() {
         this.doubleBackToExitPressedOnce = true
         Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show()
 
-        Handler().postDelayed(Runnable { doubleBackToExitPressedOnce = false }, 2000)
+        Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }
 }

@@ -5,4 +5,5 @@
     <string name="title_activity_chronos">Debate</string>
     <string name="title_activity_vote">Vote</string>
     <string name="title_activity_dead">Dead</string>
+    <string name="title_activity_end">EndActivity</string>
 </resources>

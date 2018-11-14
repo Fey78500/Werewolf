@@ -22,7 +22,9 @@ class VoteActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_vote)
         setSupportActionBar(toolbar)
+
         username.text = player.name
+
         this.players = GameEngine.getOtherPlayers(player)
         // Affiche les joueurs vivants
         getPlayers()
@@ -44,9 +46,6 @@ class VoteActivity : AppCompatActivity() {
                 for (i in 0 until layoutPlayers.childCount) {
                     val child = layoutPlayers.getChildAt(i)
                     child.isActivated = false
-                    if(player.javaClass.simpleName == "Seer"){
-                        child.isClickable = false
-                    }
                 }
                 it.isActivated = true
                 choosenPlayer = otherPlayer
