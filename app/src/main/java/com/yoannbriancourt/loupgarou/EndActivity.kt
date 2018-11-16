@@ -2,9 +2,11 @@ package com.yoannbriancourt.loupgarou
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
 import android.support.v7.app.AppCompatActivity
 import android.widget.Button
 import android.widget.LinearLayout
+import android.widget.Toast
 import com.yoannbriancourt.loupgarou.model.Villager
 import kotlinx.android.synthetic.main.activity_end.*
 import kotlinx.android.synthetic.main.content_end.*
@@ -30,13 +32,25 @@ class EndActivity : AppCompatActivity() {
     private fun getPlayers(){
         for(player in players) {
             val button = Button(this)
-            button.text = "${player.name} : ${player.javaClass.simpleName}"
-            if(player.health == 0){
+            button.text = getString(R.string.buttonPlayerWithRole,player.name,player.javaClass.simpleName)
+            if(player.health < 1){
                 button.background = getDrawable(R.drawable.button_dead)
             }
             button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             layoutEnd.addView(button)
         }
+    }
+
+    private var doubleBackToExitPressedOnce = false
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            finishAffinity()
+            return
+        }
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(this, getString(R.string.clickBack), Toast.LENGTH_SHORT).show()
+
+        Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }
 
 }

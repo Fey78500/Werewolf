@@ -13,8 +13,7 @@ import kotlinx.android.synthetic.main.activity_night.*
 import kotlinx.android.synthetic.main.content_night.*
 
 class NightActivity : AppCompatActivity() {
-    private var turn = GameEngine.getTurn()
-    private val player = GameEngine.getPlayer(turn)
+    private val player = GameEngine.getPlayer()
     private lateinit var players : ArrayList<Villager>
     private lateinit var playerAction : String
     private lateinit var choosenPlayer : Villager
@@ -26,7 +25,7 @@ class NightActivity : AppCompatActivity() {
         this.players = GameEngine.getOtherPlayers(player)
         //set les textes en fonction du player
         setText()
-        if(player.javaClass.simpleName != "Villager"){
+        if(!player.nothingAtNight){
             // Affiche les actions possible en fonction du role
             getActions()
             // Affiche les joueurs vivants
@@ -91,7 +90,7 @@ class NightActivity : AppCompatActivity() {
                 }
                 it.isActivated = true
                 if(player.javaClass.simpleName == "Seer") {
-                    button.text = otherPlayer.name + " : " + otherPlayer.javaClass.simpleName
+                    button.text = getString(R.string.buttonPlayerWithRole,otherPlayer.name,otherPlayer.javaClass.simpleName)
                 }
                 choosenPlayer = otherPlayer
             }
@@ -100,12 +99,12 @@ class NightActivity : AppCompatActivity() {
 
     private fun onNextTap(){
 
-        if(player.javaClass.simpleName != "Villager"){
+        if(!player.nothingAtNight){
             if(::playerAction.isInitialized && ::choosenPlayer.isInitialized) {
                 GameEngine.setAction(playerAction, choosenPlayer, player)
                 changeView()
             }else{
-                Toast.makeText(this, "Please choose a action and a player", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.checkActionAndPlayer), Toast.LENGTH_SHORT).show()
             }
         }else{
             changeView()
@@ -132,7 +131,7 @@ class NightActivity : AppCompatActivity() {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.clickBack), Toast.LENGTH_SHORT).show()
 
         Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }

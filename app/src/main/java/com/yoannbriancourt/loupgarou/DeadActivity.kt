@@ -39,7 +39,7 @@ class DeadActivity : AppCompatActivity() {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.clickBack), Toast.LENGTH_SHORT).show()
 
         Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }
@@ -48,7 +48,7 @@ class DeadActivity : AppCompatActivity() {
         val deadPlayers = GameEngine.getDeadPlayer()
         val end = GameEngine.checkWinning()
         if(end != "continue"){
-            textDied.text = "End of the game, Winner : $end"
+            textDied.text = getString(R.string.end,end)
             fab.visibility = View.INVISIBLE
             Handler().postDelayed({
                 val intent = Intent(this, EndActivity::class.java)
@@ -59,12 +59,12 @@ class DeadActivity : AppCompatActivity() {
             if(deadPlayers.size != 0){
                 var str = ""
                 for(deadPlayer in deadPlayers){
-                    str += deadPlayer.name + ", "
+                    str += " " + deadPlayer.name + ","
                 }
-                str.removeSuffix(", ")
-                textDied.text = "Those players died : $str"
+                str.trimEnd(',')
+                textDied.text = getString(R.string.dead,str)
             }else{
-                textDied.text = "No one died"
+                textDied.text = getString(R.string.noOneDied)
             }
         }
     }

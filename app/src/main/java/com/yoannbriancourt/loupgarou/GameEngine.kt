@@ -6,11 +6,16 @@ import kotlin.collections.ArrayList
 
 object GameEngine {
     private var players : ArrayList<Villager> = ArrayList()
-    private var allPlayers : ArrayList<Villager> = ArrayList()
+    private var playersName : ArrayList<String> = ArrayList()
     private var turn : Int = 0
     private var day : Boolean = true
-    private lateinit var  maxVote : Villager
-    private fun selector(p: Villager): Int = p.nbrVote
+    private fun selectorNbrVote(p: Villager): Int = p.nbrVote
+    private fun selectorId(p: Villager): Int = p.id
+
+
+    fun getPlayersName(): ArrayList<String>{
+        return this.playersName
+    }
 
     fun setDay(day:Boolean){
         this.day = day
@@ -25,21 +30,22 @@ object GameEngine {
 
     fun getOtherPlayers(player : Villager): ArrayList<Villager>{
         //Get all player except the courrant one
-        return ArrayList(this.players.filterNot {
-            it == player
-        })
+        return ArrayList(ArrayList(this.players.filterNot {it == player }).filterNot{it.health < 1})
     }
 
     fun getAllPlayers() : ArrayList<Villager>{
-        return this.allPlayers
-    }
-
-    fun getPlayers() : ArrayList<Villager>{
         return this.players
     }
 
-    fun getPlayer(index : Int) : Villager{
-        return this.players[index]
+    fun getPlayers() : ArrayList<Villager>{
+        return ArrayList(this.players.filterNot {it.health < 1 })
+    }
+
+    fun getPlayer() : Villager{
+        while(this.players[this.turn].health < 1){
+            this.turn++
+        }
+        return this.players[this.turn]
     }
 
     fun nextPlayer(){
@@ -50,37 +56,31 @@ object GameEngine {
         this.turn = 0
     }
 
-    fun getTurn() : Int{
-        return this.turn
-    }
-
     fun createRoles(nbr : Int, playersName : ArrayList<String>){
         var isThereBad = false
         while(!isThereBad){
             this.players = ArrayList()
-            this.allPlayers = ArrayList()
             for(i in nbr downTo 0){
-                val random = (0..4).random()
-                val name = "$i: ${playersName[i]}"
+                val random = (0..5).random()
+                val name = playersName[i]
                 val player = when(random){
-                    0 -> Werewolf(name,1,0,true)
-                    1 -> Hunter(name,1,0,false)
-                    2 -> Seer(name,1,0,false)
-                    3 -> Sorcerer(name,1,0,false)
-                    4 -> Villager(name,1,0,false)
+                    0 -> Werewolf(i,name,1,0)
+                    1 -> Hunter(i,name,1,0,false)
+                    2 -> Seer(i,name,1,0,false)
+                    3 -> Sorcerer(i,name,1,0,false)
+                    4 -> Mayor(i,name,1,0,false)
+                    5 -> Villager(i,name,1,0,false,true)
                     else -> {
-                        Villager(name,1,0,false)
+                        Villager(i,name,1,0,false,true)
                     }
                 }
                 if(player.isBad){
                     isThereBad = true
                 }
                 this.players.add(player)
-                this.allPlayers.add(player)
             }
         }
-
-
+        this.playersName = playersName
     }
 
     fun getActions(player : Villager) : ArrayList<String>{
@@ -115,21 +115,20 @@ object GameEngine {
 
     fun getDeadPlayer() : ArrayList<Villager>{
         val deadPlayers : ArrayList<Villager> = ArrayList()
-        var draw = false
         if(this.day){
             for(targetPlayer in players){
                 for(actionPlayer in players){
                     if(targetPlayer.actions[actionPlayer] == "kill"){
-                        targetPlayer.health --
+                        targetPlayer.die()
                     }
                     if(targetPlayer.actions[actionPlayer] == "save"){
-                        if(targetPlayer.health == 0) {
-                            targetPlayer.health++
+                        if(targetPlayer.health < 1) {
+                            targetPlayer.health = 1
                         }
                         break
                     }
                 }
-                if(targetPlayer.health == 0){
+                if(targetPlayer.health < 1){
                     deadPlayers.add(targetPlayer)
                 }
             }
@@ -139,28 +138,20 @@ object GameEngine {
             if(searchHunter != null){
                 for(targetPlayer in this.players) {
                     if(targetPlayer.actions[searchHunter] == "target"){
-                        targetPlayer.health --
-                        if(targetPlayer.health == 0){
+                        targetPlayer.die()
+                        if(targetPlayer.health < 1){
                             deadPlayers.add(targetPlayer)
                         }
                     }
                 }
             }
         }else{
-            this.players.sortBy {selector(it)}
-            for(votePlayer in this.players){
-                when {
-                    votePlayer == this.players.first() -> this.maxVote = votePlayer
-                    this.maxVote.nbrVote == votePlayer.nbrVote -> draw = true
-                    this.maxVote.nbrVote < votePlayer.nbrVote -> this.maxVote = votePlayer
-                }
+            this.players.sortBy { selectorNbrVote(it) }
+            if(this.players[0].nbrVote != this.players[1].nbrVote){
+                this.players[0].die()
+                deadPlayers.add(this.players[0])
             }
-            if(!draw) {
-                deadPlayers.add(maxVote)
-            }
-        }
-        if(!draw){
-            this.players.removeAll(deadPlayers)
+            this.players.sortByDescending { selectorId(it) }
         }
         return deadPlayers
     }
@@ -169,9 +160,9 @@ object GameEngine {
         var isThereBad = false
         var isThereGood = false
         for(player in this.players){
-            if(player.isBad) {
+            if(player.isBad && player.health > 0) {
                 isThereBad = true
-            }else if(!player.isBad){
+            }else if(!player.isBad && player.health > 0){
                 isThereGood = true
             }
         }
@@ -187,7 +178,6 @@ object GameEngine {
 
     fun restart(){
         this.players = ArrayList()
-        this.allPlayers = ArrayList()
         resetTurn()
         this.day = true
     }

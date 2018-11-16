@@ -5,5 +5,15 @@
     <string name="title_activity_chronos">Debate</string>
     <string name="title_activity_vote">Vote</string>
     <string name="title_activity_dead">Dead</string>
-    <string name="title_activity_end">EndActivity</string>
+    <string name="title_activity_end">End of the Game</string>
+    <string name="noOneDied">No one died</string>
+    <string name="dead">Those players died : %1s</string>
+    <string name="end">End of the game, Winner : %1s</string>
+    <string name="clickBack">Please click BACK again to exit</string>
+    <string name="buttonPlayerWithRole">%1s : %2s</string>
+    <string name="checkPlayerNumber">You need to have between 3 and 30 players</string>
+    <string name="checkPlayerName">Please the player need a name</string>
+    <string name="checkActionAndPlayer">Please choose a action and a player</string>
+    <string name="checkPlayer">Please choose a player</string>
+
 </resources>

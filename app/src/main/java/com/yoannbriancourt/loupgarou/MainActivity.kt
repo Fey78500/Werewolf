@@ -21,8 +21,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
-
-        //nbrPlayer.filters = arrayOf<InputFilter>(MinMaxFilter("3", "30"))
+        if(GameEngine.getPlayersName().size != 0){
+            setOldPlayers()
+        }
 
         setListener()
 
@@ -71,11 +72,21 @@ class MainActivity : AppCompatActivity() {
         for(index in layoutPlayersName.childCount - 1 downTo 0){
             val child = layoutPlayersName.getChildAt(index) as EditText
             if(child.text.toString() == "") {
-                Toast.makeText(this, "Please the player need a name", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.checkPlayerName), Toast.LENGTH_SHORT).show()
                 return
             }
             this.playersName.add(child.text.toString())
             this.nbrPlayers ++
+        }
+    }
+
+    private fun setOldPlayers(){
+        for(playerName in GameEngine.getPlayersName()){
+            val text = EditText(this)
+            text.hint = "Player name"
+            text.setText(playerName)
+            text.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
+            layoutPlayersName.addView(text)
         }
     }
 
@@ -91,7 +102,7 @@ class MainActivity : AppCompatActivity() {
         if(this.nbrPlayers > 2) {
             return true
         }
-        Toast.makeText(this, "You need to have between 3 and 30 players", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.checkPlayerNumber), Toast.LENGTH_SHORT).show()
         return false
     }
 
@@ -107,7 +118,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.clickBack), Toast.LENGTH_SHORT).show()
 
         Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }

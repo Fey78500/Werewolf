@@ -13,8 +13,7 @@ import kotlinx.android.synthetic.main.content_night.*
 
 class VoteActivity : AppCompatActivity() {
 
-    private var turn = GameEngine.getTurn()
-    private val player = GameEngine.getPlayer(turn)
+    private val player = GameEngine.getPlayer()
     private lateinit var players : ArrayList<Villager>
     private lateinit var choosenPlayer : Villager
 
@@ -29,7 +28,7 @@ class VoteActivity : AppCompatActivity() {
         // Affiche les joueurs vivants
         getPlayers()
 
-        fab.setOnClickListener { view ->
+        fab.setOnClickListener {
             // Si il n'y plus de joueur, le vote se termine arrive
             onNextTap()
         }
@@ -59,7 +58,7 @@ class VoteActivity : AppCompatActivity() {
             GameEngine.setVote(choosenPlayer, player)
             changeView()
         }else{
-            Toast.makeText(this, "Please choose a player", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this,getString(R.string.checkPlayer) , Toast.LENGTH_SHORT).show()
         }
 
     }
@@ -83,7 +82,7 @@ class VoteActivity : AppCompatActivity() {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        Toast.makeText(this, "Please click BACK again to exit", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, getString(R.string.clickBack), Toast.LENGTH_SHORT).show()
 
         Handler().postDelayed({ doubleBackToExitPressedOnce = false }, 2000)
     }
