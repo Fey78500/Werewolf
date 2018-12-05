@@ -78,6 +78,7 @@ class VoteActivity : AppCompatActivity() {
     private var doubleBackToExitPressedOnce = false
     override fun onBackPressed() {
         if (doubleBackToExitPressedOnce) {
+            GameEngine.restart()
             finishAffinity()
             return
         }

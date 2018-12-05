@@ -53,6 +53,14 @@ class NightActivity : AppCompatActivity() {
 
     private fun getActions(){
         for(action in GameEngine.getActions(player)){
+            if(player.javaClass.simpleName == "Sorcerer"){
+                if(action == "kill" && player.killPotion == 0){
+                    continue
+                }
+                if(action == "save" && player.savePotion == 0){
+                    continue
+                }
+            }
             val button = Button(this)
             button.text = action
             button.background = getDrawable(R.drawable.button_custom)
@@ -76,10 +84,16 @@ class NightActivity : AppCompatActivity() {
     private fun getPlayers(){
         for(otherPlayer in players) {
             val button = Button(this)
-            button.text = otherPlayer.name
+            if(otherPlayer.javaClass.simpleName == "Werewolf" && this.player.javaClass.simpleName == "Werewolf"){
+                button.text = getString(R.string.buttonPlayerWithRole,otherPlayer.name,otherPlayer.javaClass.simpleName)
+                button.isClickable = false
+            }else{
+                button.text = otherPlayer.name
+            }
             button.background = getDrawable(R.drawable.button_custom)
             button.layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, LinearLayout.LayoutParams.WRAP_CONTENT)
             layoutPlayers.addView(button)
+
             button.setOnClickListener {
                 for (i in 0 until layoutPlayers.childCount) {
                     val child = layoutPlayers.getChildAt(i)
@@ -102,12 +116,14 @@ class NightActivity : AppCompatActivity() {
         if(!player.nothingAtNight){
             if(::playerAction.isInitialized && ::choosenPlayer.isInitialized) {
                 GameEngine.setAction(playerAction, choosenPlayer, player)
-                changeView()
+                this.changeView()
+            }else if(::playerAction.isInitialized && playerAction == "nothing"){
+                this.changeView()
             }else{
                 Toast.makeText(this, getString(R.string.checkActionAndPlayer), Toast.LENGTH_SHORT).show()
             }
         }else{
-            changeView()
+            this.changeView()
         }
 
     }
@@ -127,6 +143,7 @@ class NightActivity : AppCompatActivity() {
     private var doubleBackToExitPressedOnce = false
     override fun onBackPressed() {
         if (doubleBackToExitPressedOnce) {
+            GameEngine.restart()
             finishAffinity()
             return
         }

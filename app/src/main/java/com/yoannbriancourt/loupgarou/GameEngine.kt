@@ -56,31 +56,56 @@ object GameEngine {
         this.turn = 0
     }
 
+    private fun resetVote(){
+        for(player in players){
+            player.nbrVote = 0
+        }
+    }
     fun createRoles(nbr : Int, playersName : ArrayList<String>){
-        var isThereBad = false
-        while(!isThereBad){
+        var nbrBad = 0
+        while(nbrBad == 0 || nbrBad > this.players.count()/2){
+            nbrBad = 0
             this.players = ArrayList()
+            var isThereMayor = false
             for(i in nbr downTo 0){
-                val random = (0..5).random()
-                val name = playersName[i]
-                val player = when(random){
-                    0 -> Werewolf(i,name,1,0)
-                    1 -> Hunter(i,name,1,0,false)
-                    2 -> Seer(i,name,1,0,false)
-                    3 -> Sorcerer(i,name,1,0,false)
-                    4 -> Mayor(i,name,1,0,false)
-                    5 -> Villager(i,name,1,0,false,true)
-                    else -> {
-                        Villager(i,name,1,0,false,true)
-                    }
-                }
-                if(player.isBad){
-                    isThereBad = true
-                }
+                val player = this.getRandomRole(isThereMayor,i,playersName[i])
+                nbrBad += checkIsBad(player.isBad)
+                isThereMayor = checkMayor(player.javaClass.simpleName)
                 this.players.add(player)
             }
         }
         this.playersName = playersName
+    }
+    private fun checkIsBad(isBad : Boolean) : Int{
+        if(isBad){
+            return 1
+        }
+        return 0
+    }
+
+    private fun checkMayor(className : String) : Boolean{
+        if(className == "Mayor"){
+            return true
+        }
+        return false
+    }
+
+    private fun getRandomRole(isThereMayor : Boolean,i : Int,name : String) : Villager{
+        var random = (0..5).random()
+        if(isThereMayor){
+            random = (0..4).random()
+        }
+        return when(random){
+            0 -> Werewolf(i,name,1,0)
+            1 -> Hunter(i,name,1,0,false)
+            2 -> Seer(i,name,1,0,false)
+            3 -> Sorcerer(i, name, 1, 0, false, 1,1)
+            4 -> Villager(i,name,1,0,false,true,0,0)
+            5 -> Mayor(i,name,1,0,false)
+            else -> {
+                Villager(i,name,1,0,false,true,0,0)
+            }
+        }
     }
 
     fun getActions(player : Villager) : ArrayList<String>{
@@ -91,6 +116,7 @@ object GameEngine {
             "Sorcerer" -> {
                 actions.add("save")
                 actions.add("kill")
+                actions.add("nothing")
             }
             "Hunter" -> actions.add("target")
             "Seer" -> actions.add("see")
@@ -116,42 +142,66 @@ object GameEngine {
     fun getDeadPlayer() : ArrayList<Villager>{
         val deadPlayers : ArrayList<Villager> = ArrayList()
         if(this.day){
-            for(targetPlayer in players){
-                for(actionPlayer in players){
-                    if(targetPlayer.actions[actionPlayer] == "kill"){
-                        targetPlayer.die()
-                    }
-                    if(targetPlayer.actions[actionPlayer] == "save"){
-                        if(targetPlayer.health < 1) {
-                            targetPlayer.health = 1
-                        }
-                        break
-                    }
-                }
-                if(targetPlayer.health < 1){
-                    deadPlayers.add(targetPlayer)
-                }
-            }
-            val searchHunter = deadPlayers.find { villager ->
-                villager.javaClass.simpleName == "Hunter"
-            }
-            if(searchHunter != null){
-                for(targetPlayer in this.players) {
-                    if(targetPlayer.actions[searchHunter] == "target"){
-                        targetPlayer.die()
-                        if(targetPlayer.health < 1){
-                            deadPlayers.add(targetPlayer)
-                        }
-                    }
-                }
-            }
+            deadPlayers.addAll(this.nightCycle(deadPlayers))
         }else{
-            this.players.sortBy { selectorNbrVote(it) }
-            if(this.players[0].nbrVote != this.players[1].nbrVote){
-                this.players[0].die()
-                deadPlayers.add(this.players[0])
+            deadPlayers.addAll(this.dayCycle(deadPlayers))
+        }
+        return deadPlayers
+    }
+
+    private fun dayCycle(deadPlayers : ArrayList<Villager>): ArrayList<Villager>{
+        this.players.sortByDescending { selectorNbrVote(it) }
+        if(this.players[0].nbrVote != this.players[1].nbrVote){
+            this.players[0].die()
+            deadPlayers.add(this.players[0])
+        }
+        this.resetVote()
+        this.players.sortByDescending { selectorId(it) }
+        return deadPlayers
+    }
+
+    private fun nightCycle(deadPlayers : ArrayList<Villager>) : ArrayList<Villager>{
+        for(targetPlayer in this.getPlayers()){
+            for(actionPlayer in this.getPlayers()){
+                //Pour chaque joueur l'action de tuer se fait
+                if(targetPlayer.actions[actionPlayer] == "kill"){
+                    if(actionPlayer.javaClass.simpleName == "Sorcerer"){
+                        actionPlayer.killPotion = 0
+                        if(actionPlayer.savePotion == 0 && actionPlayer.killPotion == 0){
+                            actionPlayer.nothingAtNight = true
+                        }
+                    }
+                    targetPlayer.health --
+                }
+                // Si un sorcier soigne quelqu'un, il ne meurt pas
+                if(targetPlayer.actions[actionPlayer] == "save"){
+                    actionPlayer.savePotion = 0
+                    if(targetPlayer.health < 1) {
+                        targetPlayer.health = 1
+                    }
+                    if(actionPlayer.savePotion == 0 && actionPlayer.killPotion == 0){
+                        actionPlayer.nothingAtNight = true
+                    }
+                    break
+                }
             }
-            this.players.sortByDescending { selectorId(it) }
+            // Les joueurs avec moins de 1 en vie meurt
+            if(targetPlayer.health < 1){
+                // Si il sont chasseur il tire leur balle avant de mourrire
+                if(targetPlayer.javaClass.simpleName == "Hunter"){
+                    for(hunterTarget in this.players) {
+                        if(hunterTarget.actions[targetPlayer] == "target"){
+                            hunterTarget.health --
+                            if(hunterTarget.health < 1){
+                                hunterTarget.die()
+                                deadPlayers.add(hunterTarget)
+                            }
+                        }
+                    }
+                }
+                targetPlayer.die()
+                deadPlayers.add(targetPlayer)
+            }
         }
         return deadPlayers
     }
@@ -166,19 +216,17 @@ object GameEngine {
                 isThereGood = true
             }
         }
-        if(!isThereBad && !isThereGood) {
-            return "Draw"
-        }else if(!isThereBad && isThereGood){
-            return "Villager"
-        }else if(isThereBad && !isThereGood){
-            return "Werewolf"
+        return when {
+            !isThereBad && !isThereGood -> "Draw"
+            !isThereBad && isThereGood -> "Villager"
+            isThereBad && !isThereGood -> "Werewolf"
+            else -> "continue"
         }
-        return "continue"
     }
 
     fun restart(){
         this.players = ArrayList()
-        resetTurn()
+        this.resetTurn()
         this.day = true
     }
 

@@ -37,6 +37,8 @@ class ChronosActivity : AppCompatActivity() {
     private var doubleBackToExitPressedOnce = false
     override fun onBackPressed() {
         if (doubleBackToExitPressedOnce) {
+            this.stopTimer()
+            GameEngine.restart()
             finishAffinity()
             return
         }
